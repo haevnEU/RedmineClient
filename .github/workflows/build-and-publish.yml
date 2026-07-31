@@ -1,9 +1,10 @@
 name: Build and Publish to GitHub Packages (JDK 25)
 
 on:
+  workflow_dispatch:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*.*.*'
 
 jobs:
   publish:
