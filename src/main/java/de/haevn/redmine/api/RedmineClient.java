@@ -22,9 +22,17 @@ public interface RedmineClient {
 
     void addComment(final long ticketId, final String comment) throws RedmineException;
 
-    void addChecklistItem(long ticketId, final String description) throws RedmineException;
+    void addChecklistItem(final long ticketId, final String description) throws RedmineException;
 
     void tickCheckbox(final long ticketId, final long checkboxId, final boolean state) throws RedmineException;
 
-    void moveToStatus(final long ticketId, final long statusId);
+    void moveToStatus(final long ticketId, final long statusId) throws RedmineException;
+
+    void moveToStatus(final long ticketId, final long statusId, final String comment) throws RedmineException;
+
+    void logTime(final long ticketId, final int hours, final int minutes, final String comment, final long activityId)
+        throws RedmineException;
+
+    void logTime(final long ticketId, final int hours, final int minutes, final String comment, final long activityId,
+        final String spentOn) throws RedmineException;
 }
