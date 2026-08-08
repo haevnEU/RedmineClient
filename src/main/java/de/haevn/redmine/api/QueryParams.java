@@ -9,7 +9,9 @@ public enum QueryParams {
     ATTACHMENTS("attachments"),
     RELATIONS("relations"),
     CHILDREN("children"),
-    SUBTASKS("subtasks");
+    SUBTASKS("subtasks"),
+    CUSTOM_FIELDS("custom_fields");
+
     public final String parameterName;
 
     QueryParams(final String parameterName) {
