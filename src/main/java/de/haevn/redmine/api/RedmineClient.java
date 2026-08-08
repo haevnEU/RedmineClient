@@ -35,4 +35,10 @@ public interface RedmineClient {
 
     void logTime(final long ticketId, final int hours, final int minutes, final String comment, final long activityId,
         final String spentOn) throws RedmineException;
+
+    void setCustomField(final long ticketId, final String value, final long customFieldId) throws RedmineException;
+
+    void setCustomField(final long ticketId, final List<String> value, final long customFieldId)
+        throws RedmineException;
+
 }

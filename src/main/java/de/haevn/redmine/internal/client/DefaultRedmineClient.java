@@ -11,6 +11,7 @@ import de.haevn.redmine.internal.dto.SingleIssueResponse;
 import de.haevn.redmine.internal.utils.RedmineSerializer;
 import de.haevn.redmine.model.Checkbox;
 import de.haevn.redmine.model.CreateTimeEntryRequest;
+import de.haevn.redmine.model.CustomFieldInput;
 import de.haevn.redmine.model.Issue;
 import de.haevn.redmine.model.IssueUpdatePayload;
 import de.haevn.redmine.model.TimeEntryPayload;
@@ -79,7 +80,7 @@ public class DefaultRedmineClient implements RedmineClient {
 
     @Override
     public void addComment(long ticketId, final String comment) throws RedmineException {
-        updateIssue(ticketId, null, comment);
+        updateIssue(ticketId, null, comment, null);
     }
 
     @Override
@@ -94,12 +95,12 @@ public class DefaultRedmineClient implements RedmineClient {
 
     @Override
     public void moveToStatus(final long ticketId, final long statusId) throws RedmineException {
-        updateIssue(ticketId, statusId, null);
+        updateIssue(ticketId, statusId, null, null);
     }
 
     @Override
     public void moveToStatus(final long ticketId, final long statusId, final String comment) throws RedmineException {
-        updateIssue(ticketId, statusId, comment);
+        updateIssue(ticketId, statusId, comment, null);
     }
 
     @Override
@@ -126,9 +127,22 @@ public class DefaultRedmineClient implements RedmineClient {
         executeRequest(path, RequestMethod.POST, Optional.of(payload), Void.class);
     }
 
-    private void updateIssue(final long ticketId, final Long statusId, final String comment) throws RedmineException {
+    @Override
+    public void setCustomField(final long ticketId, final String value, final long customFieldId)
+        throws RedmineException {
+        updateIssue(ticketId, null, null, List.of(new CustomFieldInput(customFieldId, value)));
+    }
+
+    @Override
+    public void setCustomField(final long ticketId, final List<String> value, final long customFieldId)
+        throws RedmineException {
+        updateIssue(ticketId, null, null, List.of(new CustomFieldInput(customFieldId, value)));
+    }
+
+    private void updateIssue(final long ticketId, final Long statusId, final String comment,
+        final List<CustomFieldInput> customFields) throws RedmineException {
         final String path = String.format("/issues/%d.json", ticketId);
-        final var payload = new UpdateIssueRequest(new IssueUpdatePayload(statusId, comment));
+        final var payload = new UpdateIssueRequest(new IssueUpdatePayload(statusId, comment, customFields));
         executeRequest(path, RequestMethod.PUT, Optional.of(payload), Void.class);
     }
 
