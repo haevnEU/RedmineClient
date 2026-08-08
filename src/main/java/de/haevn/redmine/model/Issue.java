@@ -34,5 +34,6 @@ public record Issue(
 
     List<Attachment> attachments,
     List<Journal> journals,
-    List<Relation> relations
+    List<Relation> relations,
+    List<CustomField> customFields
 ) {}
