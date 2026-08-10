@@ -2,6 +2,7 @@ package de.haevn.redmine.internal.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.haevn.redmine.api.InfoType;
 import de.haevn.redmine.api.QueryParams;
 import de.haevn.redmine.api.RedmineClient;
 import de.haevn.redmine.api.RedmineException;
@@ -14,6 +15,7 @@ import de.haevn.redmine.model.CreateTimeEntryRequest;
 import de.haevn.redmine.model.CustomFieldInput;
 import de.haevn.redmine.model.Issue;
 import de.haevn.redmine.model.IssueUpdatePayload;
+import de.haevn.redmine.model.RedmineInfoResponses;
 import de.haevn.redmine.model.TimeEntryPayload;
 import de.haevn.redmine.model.UpdateIssueRequest;
 import java.io.IOException;
@@ -137,6 +139,38 @@ public class DefaultRedmineClient implements RedmineClient {
     public void setCustomField(final long ticketId, final List<String> value, final long customFieldId)
         throws RedmineException {
         updateIssue(ticketId, null, null, List.of(new CustomFieldInput(customFieldId, value)));
+    }
+
+    public List<RedmineInfoResponses.InfoResponse> getInfo(final InfoType infoType) throws RedmineException {
+        final var responseOpt =
+            executeRequest(infoType.endpoint, RequestMethod.GET, Optional.empty(), infoType.responseWrapperType);
+
+        if (responseOpt.isEmpty()) {
+            return List.of();
+        }
+
+        final Object response = responseOpt.get();
+
+        return switch (infoType) {
+            case STATUS -> {
+                final var statusesWrapper = (RedmineInfoResponses.IssueStatusesResponse) response;
+                yield statusesWrapper.issueStatuses().stream()
+                    .map(item -> new RedmineInfoResponses.InfoResponse(item.id(), item.name(), item.isDefault()))
+                    .toList();
+            }
+            case PRIORITY -> {
+                final var prioritiesWrapper = (RedmineInfoResponses.PrioritiesResponse) response;
+                yield prioritiesWrapper.issuePriorities().stream()
+                    .map(item -> new RedmineInfoResponses.InfoResponse(item.id(), item.name(), item.isDefault()))
+                    .toList();
+            }
+            case ACTIVITY -> {
+                final var activitiesWrapper = (RedmineInfoResponses.ActivitiesResponse) response;
+                yield activitiesWrapper.timeEntryActivities().stream()
+                    .map(item -> new RedmineInfoResponses.InfoResponse(item.id(), item.name(), item.isDefault()))
+                    .toList();
+            }
+        };
     }
 
     private void updateIssue(final long ticketId, final Long statusId, final String comment,
